@@ -2,6 +2,7 @@ package com.mmgg.pets;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
@@ -15,44 +16,31 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+import com.mmgg.graphics.Spritesheet;
 import com.mmgg.main.Main;
 
-public class Pet extends JFrame implements MouseListener, MouseMotionListener, MouseWheelListener{
+public abstract class Pet extends JFrame implements MouseListener, MouseMotionListener, MouseWheelListener{
 	
-	
-	private JLabel petLabel;
-	private int width, height;
-	private double minSpd, maxSpd;
-	private PetMovement movement;
-	private Point initialClick;
-	private BufferedImage[] sprite, sprite1;
-	private BufferedImage resizedImage;
-	private int frames = 0,maxFrames = 4, index = 0,maxIndex = 8;
-	private boolean moved, right, left;
-//	protected static Spritesheet spritesLizard;
-
+	protected JLabel petLabel;
+	protected Point initialClick, mouseLoc;
+	protected PetMovement movement;
+	protected BufferedImage[] spriteRight, spriteLeft, spriteUp, spriteDown;
+	protected BufferedImage[] spriteRight_Up, spriteLeft_Up, spriteRight_Down, spriteLeft_Down;
+	protected BufferedImage resizedImage;
+	protected int width, height;
+	protected int frames, maxFrames, index, maxIndex;
+	protected double minSpd, maxSpd;
+	protected boolean moved;
 	
 	public Pet(int x, int y, int width, int height, double minSpd, double maxSpd) {
 		this.minSpd = minSpd;
 		this.maxSpd = maxSpd;
 		this.width = width;
 		this.height = height;
-//		spritesLizard = new Spritesheet("res/spritesLizard.png");
 		
-		movement = new PetMovement(100,100, "Plataform");
+		mouseLoc = MouseInfo.getPointerInfo().getLocation();
 		
-		sprite = new BufferedImage[9];
-		sprite1 = new BufferedImage[9];
-		
-//		for(int i = 0; i <= 3; i++) {
-//			sprite[i] = Main.spritesLizard.getSprite(0+(i*200), 0, 200, 200);
-//			sprite1[i] = Main.spritesLizard.getSprite(0+(i*200), 200, 200, 200);
-//		}
-		for(int i = 0; i <= 8; i++) {
-			sprite[i] = Main.spritesStickmanR.getSprite(0+(i*64), 0, 64, 64);
-			sprite1[i] = Main.spritesStickmanL.getSprite(0+(i*64), 0, 64, 64);
-		}
-		//Adiciona funções do mouse
+//		//Adiciona funções do mouse
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		
@@ -60,27 +48,28 @@ public class Pet extends JFrame implements MouseListener, MouseMotionListener, M
 		setUndecorated(true);
         setBackground(new Color(0, 0, 0, 0));
         setAlwaysOnTop(true);
+        setSize(width, height);
+        setLocation(x, y);
         setLayout(null);        
         
-        resizedImage = resizeImage(sprite[0], width, height);
         
-        //Transformando a imagem em Icon para criar um rótulo(Label)
-        ImageIcon petIcon = new ImageIcon(resizedImage);
-        petLabel = new JLabel(petIcon);
-        petLabel.setBounds(0, 0, resizedImage.getWidth(), resizedImage.getHeight());
+        // JLabel que mostrará o sprite
+        petLabel = new JLabel();
+        petLabel.setBounds(0, 0, width, height);
         add(petLabel);
-        setSize(resizedImage.getWidth(), resizedImage.getHeight());
+
+        setVisible(true);
         
 	} 
 	public void detectedMove() {
-			frames++;
-			if(frames == maxFrames) {
-				frames = 0;
-				index++;
-				if(index > maxIndex) {
-					index = 0;
-				}
-			}	
+		frames++;
+		if(frames == maxFrames) {
+			frames = 0;
+			index++;
+			if(index == maxIndex) {
+				index = 0;
+			}
+		}	
 	}
 	
 	public double getMinSpd() {
@@ -91,62 +80,45 @@ public class Pet extends JFrame implements MouseListener, MouseMotionListener, M
 		return maxSpd;
 	}
 	
+	public JLabel getPetLabel() {
+        return petLabel;
+    }
+	
 	public void setIndex(int index) {
 		this.index = index;
 	}
 
-	public void updateImage(boolean[] dir) {
-		if(dir[0] && dir[3]) {
-			resizedImage = resizeImage(sprite1[0], width, height);
-			petLabel.setIcon(new ImageIcon(resizedImage));
-		}else if(dir[1] && dir[3]) {
-			resizedImage = resizeImage(sprite1[1], width, height);
-			petLabel.setIcon(new ImageIcon(resizedImage));
-		}
-		else 
-		if(dir[0] && dir[2]) {
-			resizedImage = resizeImage(sprite1[2], width, height);
-			petLabel.setIcon(new ImageIcon(resizedImage));
-		}else if(dir[1] && dir[2]) {
-			resizedImage = resizeImage(sprite1[3], width, height);
-			petLabel.setIcon(new ImageIcon(resizedImage));
-		}
-		else
-		if(dir[0]) {
-			resizedImage = resizeImage(sprite[0], width, height);
-			petLabel.setIcon(new ImageIcon(resizedImage));
-		}else if(dir[1]) {
-			resizedImage = resizeImage(sprite[1], width, height);
-			petLabel.setIcon(new ImageIcon(resizedImage));
-		}else
-		if(dir[2]) {
-			resizedImage = resizeImage(sprite[2], width, height);
-			petLabel.setIcon(new ImageIcon(resizedImage));
-		}else if(dir[3]) {
-			resizedImage = resizeImage(sprite[3], width, height);
-			petLabel.setIcon(new ImageIcon(resizedImage));
-		}
+	public void loadSprites(int maxIndex, Spritesheet spritesheet, int width, int height) {
+		this.maxIndex = maxIndex;
+		
+		spriteLeft = new BufferedImage[maxIndex];
+	    spriteRight = new BufferedImage[maxIndex];
+	    spriteUp = new BufferedImage[maxIndex];
+	    spriteDown = new BufferedImage[maxIndex];
+
+	    for (int i = 0; i < maxIndex; i++) {
+	        spriteLeft[i] = spritesheet.getSprite(i * width, 0, width, height);
+	        spriteRight[i] = spritesheet.getSprite(i * width, height, width, height);
+	        spriteUp[i] = spritesheet.getSprite(i * width, height*2, width, height);
+	        spriteDown[i] = spritesheet.getSprite(i * width, height*3, width, height);
+	    }
 	}
-	
-	public void updateImagePlataform(boolean[] dir) {
-		if(dir[0]) {
-			resizedImage = resizeImage(sprite1[index], width, height);
-			petLabel.setIcon(new ImageIcon(resizedImage));
-		}else if(dir[1]) {
-			resizedImage = resizeImage(sprite[index], width, height);
-			petLabel.setIcon(new ImageIcon(resizedImage));
-		}if(dir[2]){
-			if(dir[1]) {
-				resizedImage = resizeImage(sprite[4], width, height);
-				petLabel.setIcon(new ImageIcon(resizedImage));
-			}else if(dir[0]) {
-				resizedImage = resizeImage(sprite1[4], width, height);
-				petLabel.setIcon(new ImageIcon(resizedImage));
-			}
-		}
+	public void loadSpritesD(int qntIndex, Spritesheet spritesheet, int width, int height) {
+		spriteLeft_Up = new BufferedImage[qntIndex];
+	    spriteRight_Up = new BufferedImage[qntIndex];
+	    spriteLeft_Down = new BufferedImage[qntIndex];
+	    spriteRight_Down = new BufferedImage[qntIndex];
+
+	    for (int i = 0; i < qntIndex; i++) {
+	        spriteLeft_Up[i] = spritesheet.getSprite(i * width, 0, width, height);
+	        spriteRight_Up[i] = spritesheet.getSprite(i * width, height, width, height);
+	        spriteLeft_Down[i] = spritesheet.getSprite(i * width, height*2, width, height);
+	        spriteRight_Down[i] = spritesheet.getSprite(i * width, height*3, width, height);
+	    }
 	}
-	
-	private BufferedImage resizeImage(BufferedImage original, int width, int height) {
+	public abstract void updateImage(boolean[] dir); 
+
+	protected BufferedImage resizeImage(BufferedImage original, int width, int height) {
 	    BufferedImage resized = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 	    Graphics2D g = resized.createGraphics();
 	    g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
@@ -155,15 +127,24 @@ public class Pet extends JFrame implements MouseListener, MouseMotionListener, M
 	    return resized;
 	}
 	
+	protected void resizeAndSetIcon(BufferedImage sprite) {
+        resizedImage = resizeImage(sprite, width, height);
+        petLabel.setIcon(new ImageIcon(resizedImage));
+    }
+
 	public void tick() {
-		movement.tick();
-		
 	}
 	
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		// TODO Auto-generated method stub
-		
+		int rotation = e.getWheelRotation();
+		System.out.println(rotation);
+//		if(e.getButton() == MouseEvent.BUTTON3) {
+//			 Main.trocarPet(new LizardPet(Main.defaultPet.getX(), Main.defaultPet.getY(), 100, 100, 1, 3));
+//		 }else if(e.getButton() == MouseEvent.BUTTON2) {
+//			 Main.trocarPet(new DefaultPet(Main.defaultPet.getX(), Main.defaultPet.getY(), 100, 100, 1, 3));
+//		 }
 	}
 
 	@Override
@@ -194,11 +175,19 @@ public class Pet extends JFrame implements MouseListener, MouseMotionListener, M
 	public void mousePressed(MouseEvent e) {
 		// TODO Auto-generated method stub
 		 initialClick = e.getPoint();
+//		 if(e.getButton() == MouseEvent.BUTTON1) {
+//			 System.exit(1);
+//		 }
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		// TODO Auto-generated method stub
+		if(e.getButton() == MouseEvent.BUTTON3) {
+			Main.trocarPet(new LizardPet(Main.pet.getX(), Main.pet.getY(), 100, 100, 1, 3));
+		}else if(e.getButton() == MouseEvent.BUTTON2) {
+			Main.trocarPet(new DefaultPet(Main.pet.getX(), Main.pet.getY(), 100, 100, 1, 3));
+		}
 		
 	}
 

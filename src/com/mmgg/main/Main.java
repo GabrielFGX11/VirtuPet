@@ -1,30 +1,45 @@
 package com.mmgg.main;
 
+import java.awt.AWTException;
 import java.awt.Dimension;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
+import java.awt.Robot;
 import java.awt.Toolkit;
 
 import com.mmgg.graphics.Spritesheet;
+import com.mmgg.pets.DefaultPet;
 import com.mmgg.pets.Pet;
 
 public class Main {
 	
 	public static Pet pet;
 	private boolean running;
-	protected static Spritesheet spritesLizard;
-	public static Spritesheet spritesStickmanR;
-	public static Spritesheet spritesStickmanL;
+	public static Spritesheet spritesLizard;
+	public static Spritesheet spritesLizardD;
+	public static Spritesheet spritesStickman;
+	public static Spritesheet spritesMorph;
+	public static Robot robot;
 	
 	private static int screenWidth, screenHeight;
 	
 	public Main() {
-		spritesLizard = new Spritesheet("/res/spritesLizard.png");
-		spritesStickmanR = new Spritesheet("/res/thickRunSheetR.png");
-		spritesStickmanL = new Spritesheet("/res/thickRunSheetL.png");
-		pet = new Pet(1000, 400, 100, 100, 1, 3);
+		spritesLizard = new Spritesheet("/lizard.png");
+		spritesLizardD = new Spritesheet("/lizardDiagonal.png");
+		spritesStickman = new Spritesheet("/stickman.png");
+		spritesMorph = new Spritesheet("/morph.png");
+		
+		try {
+			robot = new Robot();
+		} catch (AWTException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		pet = new DefaultPet(1366, 764, 100, 100, 1, 3);
 		pet.setVisible(true);
+		
 		//Dimensão do tamanho da tela
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice gd = ge.getDefaultScreenDevice();
@@ -70,6 +85,18 @@ public class Main {
 	        }
 	    }
 	}
+	
+	public static void trocarPet(Pet novoPet) {
+	    // Esconde ou remove o pet atual
+	    if (pet != null) {
+	        pet.setVisible(false);
+	    }
+
+	    // Adiciona e mostra o novo pet
+	    pet = (Pet) novoPet;	
+	    pet.setVisible(true);
+	}
+
 	
 	public void tick() {
 		pet.tick();
