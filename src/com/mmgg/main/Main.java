@@ -37,7 +37,7 @@ public class Main {
 			e.printStackTrace();
 		}
 		
-		pet = new DefaultPet(1366, 764, 100, 100, 1, 3);
+		pet = new DefaultPet(1366, 764, 300, 300, 1, 3);
 		pet.setVisible(true);
 		
 		//Dimensão do tamanho da tela

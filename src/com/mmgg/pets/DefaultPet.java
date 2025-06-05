@@ -6,11 +6,14 @@ import com.mmgg.main.Main;
 
 public class DefaultPet extends Pet{
 	
+	public static boolean morph;
+	
 	public DefaultPet(int x, int y, int width, int height, double minSpd, double maxSpd) {
 		super(x, y, width, height, minSpd, maxSpd);
 		loadSprites(6, Main.spritesMorph, 180, 180);
 		movement = new PetMovement(this, x, y, "TopDown");
 		maxFrames = 8;
+		morph = true;
 	}
 	
 	@Override

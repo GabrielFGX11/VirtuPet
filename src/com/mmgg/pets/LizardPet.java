@@ -3,6 +3,8 @@ package com.mmgg.pets;
 import com.mmgg.main.Main;
 
 public class LizardPet extends Pet{
+	
+	public static boolean lizard;
 
 	public LizardPet(int x, int y, int width, int height, double minSpd, double maxSpd) {
 		super(x, y, width, height, minSpd, maxSpd);
@@ -10,6 +12,7 @@ public class LizardPet extends Pet{
 		loadSpritesD(1, Main.spritesLizardD, 200, 200);
 		movement = new PetMovement(this, x, y, "TopDown");
 		maxFrames = 5;
+		lizard = true;
 	}
 
 	@Override

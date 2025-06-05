@@ -184,10 +184,15 @@ public abstract class Pet extends JFrame implements MouseListener, MouseMotionLi
 	public void mouseReleased(MouseEvent e) {
 		// TODO Auto-generated method stub
 		if(e.getButton() == MouseEvent.BUTTON3) {
-			Main.trocarPet(new LizardPet(Main.pet.getX(), Main.pet.getY(), 100, 100, 1, 3));
-		}else if(e.getButton() == MouseEvent.BUTTON2) {
-			Main.trocarPet(new DefaultPet(Main.pet.getX(), Main.pet.getY(), 100, 100, 1, 3));
+				Main.trocarPet(new LizardPet(Main.pet.getX(), Main.pet.getY(), 300, 300, 1, 3));
 		}
+		if(e.getButton() == MouseEvent.BUTTON1) {
+			Main.trocarPet(new DefaultPet(Main.pet.getX(), Main.pet.getY(), 300, 300, 1, 3));
+		}
+		if(e.getButton() == MouseEvent.BUTTON2) {
+			Main.trocarPet(new StickmanPet(Main.pet.getX(), Main.pet.getY(), 300, 300, 1, 3));
+		}
+			
 		
 	}
 
